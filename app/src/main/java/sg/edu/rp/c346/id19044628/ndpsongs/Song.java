@@ -52,6 +52,10 @@ public class Song implements Serializable {
         this.stars = stars;
     }
 
+    public void set_id(int _id) {
+        this._id = _id;
+    }
+
     @Override
     public String toString() {
         return  title + '\'' +

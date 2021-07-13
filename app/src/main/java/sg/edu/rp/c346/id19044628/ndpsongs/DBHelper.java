@@ -2,9 +2,12 @@ package sg.edu.rp.c346.id19044628.ndpsongs;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.util.ArrayList;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -41,5 +44,30 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("ALTER TABLE " + TABLE_SONG + " ADD COLUMN  module_name TEXT ");
     }
 
+    public ArrayList<Song> getAllSongs() {
+        ArrayList<Song> songs = new ArrayList<Song>();
+
+        String selectQuery = "SELECT " + COLUMN_ID + ","
+                + COLUMN_SONG_TITLE + ","
+                + COLUMN_SONG_SINGERS + "," + COLUMN_SONG_YEAR +  "," + COLUMN_SONG_STARS + " FROM " + TABLE_SONG;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String songTitle = cursor.getString(1);
+                String songSinger= cursor.getString(2);
+                int songYear= cursor.getInt(3);
+                int songStar= cursor.getInt(4);
+                Song song = new Song(songTitle, songSinger, songYear, songStar);
+                song.set_id(id);
+                songs.add(song);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return songs;
+    }
 
 }

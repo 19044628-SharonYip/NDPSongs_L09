@@ -13,4 +13,5 @@
     <string name="btnUpdate">update</string>
     <string name="btnDel">delete</string>
     <string name="btnCancel">cancel</string>
+    <string name="tvID">ID</string>
 </resources>
