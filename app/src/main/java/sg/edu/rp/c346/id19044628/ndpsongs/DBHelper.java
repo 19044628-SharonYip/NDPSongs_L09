@@ -27,7 +27,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String createSongTableSql = "CREATE TABLE " + TABLE_SONG + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                + COLUMN_SONG_TITLE + " TEXT," +  COLUMN_SONG_SINGERS + " TEXT," + COLUMN_SONG_YEAR + " INTEGER," + COLUMN_SONG_STARS + "INTEGER ) ";
+                + COLUMN_SONG_TITLE + " TEXT,"
+                + COLUMN_SONG_SINGERS + " TEXT,"
+                + COLUMN_SONG_YEAR + " INTEGER,"
+                + COLUMN_SONG_STARS + " INTEGER ) ";
+
         db.execSQL(createSongTableSql);
         Log.i("info", "created tables");
 
@@ -44,10 +48,13 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("ALTER TABLE " + TABLE_SONG + " ADD COLUMN  module_name TEXT ");
     }
 
-    public long insertSong(String songContent) {
+    public long insertSong(String songTitle, String songSinger, int songYear, int songStar) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(COLUMN_SONG_TITLE, songContent);
+        values.put(COLUMN_SONG_TITLE, songTitle);
+        values.put(COLUMN_SONG_SINGERS, songSinger);
+        values.put(COLUMN_SONG_YEAR, songYear);
+        values.put(COLUMN_SONG_STARS,songStar);
         long result = db.insert(TABLE_SONG, null, values);
         db.close();
         Log.d("SQL Insert","ID:"+ result); //id returned, shouldn’t be -1
@@ -59,7 +66,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String selectQuery = "SELECT " + COLUMN_ID + ","
                 + COLUMN_SONG_TITLE + ","
-                + COLUMN_SONG_SINGERS + "," + COLUMN_SONG_YEAR +  "," + COLUMN_SONG_STARS + " FROM " + TABLE_SONG;
+                + COLUMN_SONG_SINGERS + ","
+                + COLUMN_SONG_YEAR +  ","
+                + COLUMN_SONG_STARS
+                + " FROM " + TABLE_SONG;
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -70,8 +80,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 String songSinger= cursor.getString(2);
                 int songYear= cursor.getInt(3);
                 int songStar= cursor.getInt(4);
-                Song song = new Song(songTitle, songSinger, songYear, songStar);
-                song.set_id(id);
+                Song song = new Song(id,songTitle, songSinger, songYear, songStar);
                 songs.add(song);
             } while (cursor.moveToNext());
         }
@@ -87,9 +96,43 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_SONG_SINGERS, data.getSingers());
         values.put(COLUMN_SONG_YEAR, data.getYear());
         values.put(COLUMN_SONG_STARS, data.getStars());
-        String condition = COLUMN_ID + "= ?" + "= ?" + "= ?" + "= ?";
+        String condition = COLUMN_ID + "= ?";
         String[] args = {String.valueOf(data.get_id())};
         int result = db.update(TABLE_SONG, values, condition, args);
+        db.close();
+        return result;
+    }
+    public ArrayList<Song> getAllSongByStar(int starFilter) {
+        ArrayList<Song> songs = new ArrayList<Song>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] columns= {COLUMN_ID, COLUMN_SONG_TITLE, COLUMN_SONG_SINGERS, COLUMN_SONG_YEAR, COLUMN_SONG_STARS};
+        String condition = COLUMN_SONG_STARS + " >= ?";
+        String[] args = { String.valueOf(starFilter)};
+        Cursor cursor = db.query(TABLE_SONG, columns, condition, args,
+                null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String songTitle = cursor.getString(1);
+                String songSinger= cursor.getString(2);
+                int songYear= cursor.getInt(3);
+                int songStar= cursor.getInt(4);
+                Song song = new Song(id,songTitle, songSinger, songYear, songStar);
+                songs.add(song);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return songs;
+    }
+
+    public int deleteNote(int id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String condition = COLUMN_ID + "= ?";
+        String[] args = {String.valueOf(id)};
+        int result = db.delete(TABLE_SONG, condition, args);
         db.close();
         return result;
     }
