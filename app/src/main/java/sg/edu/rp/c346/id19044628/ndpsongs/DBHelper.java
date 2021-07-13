@@ -44,6 +44,16 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("ALTER TABLE " + TABLE_SONG + " ADD COLUMN  module_name TEXT ");
     }
 
+    public long insertSong(String songContent) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_SONG_TITLE, songContent);
+        long result = db.insert(TABLE_SONG, null, values);
+        db.close();
+        Log.d("SQL Insert","ID:"+ result); //id returned, shouldn’t be -1
+        return result;
+    }
+
     public ArrayList<Song> getAllSongs() {
         ArrayList<Song> songs = new ArrayList<Song>();
 
@@ -68,6 +78,20 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return songs;
+    }
+
+    public int updateSong(Song data){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_SONG_TITLE, data.getTitle());
+        values.put(COLUMN_SONG_SINGERS, data.getSingers());
+        values.put(COLUMN_SONG_YEAR, data.getYear());
+        values.put(COLUMN_SONG_STARS, data.getStars());
+        String condition = COLUMN_ID + "= ?" + "= ?" + "= ?" + "= ?";
+        String[] args = {String.valueOf(data.get_id())};
+        int result = db.update(TABLE_SONG, values, condition, args);
+        db.close();
+        return result;
     }
 
 }
