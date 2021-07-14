@@ -59,8 +59,10 @@ public class Song implements Serializable {
 
     @Override
     public String toString() {
-        return  title + '\'' +
-                 singers  +'-'+ year +
-                 + stars ;
+        return  title + "\n"
+                + singers
+                +" - " + year
+                + "\n"
+                + stars ;
     }
 }

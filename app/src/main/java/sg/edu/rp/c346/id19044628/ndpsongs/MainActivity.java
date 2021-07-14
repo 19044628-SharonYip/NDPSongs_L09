@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
@@ -15,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     EditText edTitle, edSinger, edYear;
     Button btnInsert, btnShow;
     RadioGroup rgStars;
+    RadioButton r1,r2,r3,r4,r5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +29,11 @@ public class MainActivity extends AppCompatActivity {
         rgStars=findViewById(R.id.rgStar);
         btnInsert=findViewById(R.id.btnInsert);
         btnShow=findViewById(R.id.btnShow);
+        r1=findViewById(R.id.rgStar1);
+        r2=findViewById(R.id.rgStar2);
+        r3=findViewById(R.id.rgStar3);
+        r4=findViewById(R.id.rgStar4);
+        r5=findViewById(R.id.rgStar5);
 
         btnShow.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,33 +46,35 @@ public class MainActivity extends AppCompatActivity {
         btnInsert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String title = edTitle.getText().toString().trim();
-                String singer= edSinger.getText().toString().trim();
+                int stars = 0;
 
-                if(title.length()==0 || singer.length()==0)
+                if (r1.isChecked())
                 {
-                    Toast.makeText(MainActivity.this, "Invalid inputs", Toast.LENGTH_SHORT).show();
-                return;
+                    stars = 1;
                 }
-                String yearr= edYear.getText().toString().trim();
-                int year=0;
-                try{
-                    year=Integer.valueOf(yearr);
-                }catch (Exception e)
+                else if (r2.isChecked())
                 {
-                    Toast.makeText(MainActivity.this, "Invalid year", Toast.LENGTH_SHORT).show();
-                    return;
+                    stars = 2;
+                }
+                else if (r3.isChecked())
+                {
+                    stars = 3;
+                }
+                else if (r4.isChecked())
+                {
+                    stars = 4;
+                }
+                else if (r5.isChecked())
+                {
+                    stars = 5;
                 }
 
                 DBHelper dbh = new DBHelper(MainActivity.this);
-                int star= getStars();
-                dbh.insertSong(title, singer, year, star);
-                dbh.close();
-                Toast.makeText(MainActivity.this, "Inserted", Toast.LENGTH_SHORT).show();
+                long inserted_id = dbh.insertSong(edTitle.getText().toString(), edSinger.getText().toString(), Integer.parseInt(edYear.getText().toString()), Integer.parseInt(String.valueOf(stars)));
 
-                edTitle.setText("");
-                edSinger.setText("");
-                edYear.setText("");
+                if (inserted_id != -1){
+                    Toast.makeText(MainActivity.this, "Insert successful",
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });
